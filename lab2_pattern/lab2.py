@@ -48,7 +48,7 @@ def pdf_multivariate_gauss_log(x, mu, cov):
     # _____________________________________________________________________
     # take log() from gauss distr: log(exp(blablabla)/Z) = blablabla - log(Z)
     part1 = np.sqrt(np.linalg.det(cov))
-    part2 = -((x - mu).T.dot(np.linalg.inv(cov))).dot((x - mu))
+    part2 = (-1 / 2) * ((x - mu).T.dot(np.linalg.inv(cov))).dot((x - mu))
     return part2 - part1
 
 

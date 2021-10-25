@@ -94,7 +94,7 @@ def fill_graph_edges(probs, epsilon=0.25):
                 g_for_im[i, j, 3] = (probs[i // 2, (j - 1) // 2, 1] + probs[i // 2, (j + 1) // 2, 1]) / n_of_Nt(
                     i, j, g_for_im.shape) + np.log(epsilon)
         # нечетные i; смотрим объекты сверху и снизу
-        if i % 2 != 0:
+        else:
             for j in range(0, g_for_im.shape[1], 2):
                 g_for_im[i, j, 0] = (probs[(i - 1) // 2, j // 2, 0] + probs[(i + 1) // 2, j // 2, 0]) / n_of_Nt(
                     i, j, g_for_im.shape) + np.log(epsilon)
@@ -134,22 +134,22 @@ def big_sum(i, j, n_ed, g):
                     if j == 1:
                         summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 1])
                     else:
-                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 1]) + max(g[i, j - 2, 0], g[i, j - 2, 1])
+                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 1]) + max(g[i, j - 2, 0], g[i, j - 2, 2])
             elif i == g.shape[0] - 1:
                 if j % 2 == 1:
                     if j == 1:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1])
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2])
                     else:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1]) + max(g[i, j - 2, 0], g[i, j - 2, 1])
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2]) + max(g[i, j - 2, 0], g[i, j - 2, 2])
             else:
                 if j % 2 == 1:
                     if j == 1:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1]) + max(g[i + 1, j - 1, 0],
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2]) + max(g[i + 1, j - 1, 0],
                                                                                    g[i + 1, j - 1, 1])
                     else:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1]) + max(g[i + 1, j - 1, 0],
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2]) + max(g[i + 1, j - 1, 0],
                                                                                    g[i + 1, j - 1, 1]) + max(
-                            g[i, j - 2, 0], g[i, j - 2, 1])
+                            g[i, j - 2, 0], g[i, j - 2, 2])
         # vert edges - watch for t - top
         elif i % 2 == 1:
             if i == 1:
@@ -157,20 +157,20 @@ def big_sum(i, j, n_ed, g):
                     if j == 0:
                         summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1])
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2])
                     else:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1]) + max(g[i - 1, j + 1, 0],
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2]) + max(g[i - 1, j + 1, 0],
                                                                                    g[i - 1, j + 1, 1])
             else:
                 if j % 2 == 0:
                     if j == 0:
-                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i - 2, j, 0], g[i - 2, j, 1])
+                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i - 2, j, 0], g[i - 2, j, 2])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 1]) + max(g[i - 2, j, 0], g[i - 2, j, 1])
+                        summa += max(g[i - 1, j - 1, 0], g[i - 1, j - 1, 2]) + max(g[i - 2, j, 0], g[i - 2, j, 2])
                     else:
                         summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i - 1, j - 1, 0],
-                                                                                   g[i - 1, j - 1, 1]) + max(
-                                                                                   g[i - 2, j, 0], g[i - 2, j, 1])
+                                                                                   g[i - 1, j - 1, 2]) + max(
+                                                                                   g[i - 2, j, 0], g[i - 2, j, 2])
     # _________________________________________________________________________________________________________________
     # case: edges from t to t': 1-0 or 1-1 - looking for edges from t to t'' 1-0 or 1-1
     elif n_ed == 2 or n_ed == 3:
@@ -182,22 +182,22 @@ def big_sum(i, j, n_ed, g):
                     if j == 1:
                         summa += max(g[i + 1, j - 1, 2], g[i + 1, j - 1, 3])
                     else:
-                        summa += max(g[i + 1, j - 1, 2], g[i + 1, j - 1, 3]) + max(g[i, j - 2, 2], g[i, j - 2, 3])
+                        summa += max(g[i + 1, j - 1, 2], g[i + 1, j - 1, 3]) + max(g[i, j - 2, 1], g[i, j - 2, 3])
             elif i == g.shape[0] - 1:
                 if j % 2 == 1:
                     if j == 1:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3])
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3])
                     else:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3]) + max(g[i, j - 2, 2], g[i, j - 2, 3])
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3]) + max(g[i, j - 2, 1], g[i, j - 2, 3])
             else:
                 if j % 2 == 1:
                     if j == 1:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3]) + max(g[i + 1, j - 1, 2],
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3]) + max(g[i + 1, j - 1, 2],
                                                                                    g[i + 1, j - 1, 3])
                     else:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3]) + max(g[i + 1, j - 1, 2],
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3]) + max(g[i + 1, j - 1, 2],
                                                                                    g[i + 1, j - 1, 3]) + max(
-                                                                                   g[i, j - 2, 2],
+                                                                                   g[i, j - 2, 1],
                                                                                    g[i, j - 2, 3])
         # vert edges - watch for t - top
         elif i % 2 == 1:
@@ -206,20 +206,20 @@ def big_sum(i, j, n_ed, g):
                     if j == 0:
                         summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3])
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3])
                     else:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3]) + max(g[i - 1, j + 1, 2],
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3]) + max(g[i - 1, j + 1, 2],
                                                                                    g[i - 1, j + 1, 3])
             else:
                 if j % 2 == 0:
                     if j == 0:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i - 2, j, 2], g[i - 2, j, 3])
+                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i - 2, j, 1], g[i - 2, j, 3])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i - 1, j - 1, 2], g[i - 1, j - 1, 3]) + max(g[i - 2, j, 2], g[i - 2, j, 3])
+                        summa += max(g[i - 1, j - 1, 1], g[i - 1, j - 1, 3]) + max(g[i - 2, j, 1], g[i - 2, j, 3])
                     else:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i - 1, j - 1, 2],
+                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i - 1, j - 1, 1],
                                                                                    g[i - 1, j - 1, 3]) + max(
-                                                                                   g[i - 2, j, 2],
+                                                                                   g[i - 2, j, 1],
                                                                                    g[i - 2, j, 3])
     # end t -> t'
     # -----------------------------------------------------------------------------------------------------------------
@@ -240,16 +240,16 @@ def big_sum(i, j, n_ed, g):
             elif i == g.shape[0] - 1:
                 if j % 2 == 1:
                     if j == g.shape[1] - 2:
-                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1])
+                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 2])
                     else:
-                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i, j + 2, 0], g[i, j + 2, 1])
+                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 2]) + max(g[i, j + 2, 0], g[i, j + 2, 1])
             else:
                 if j % 2 == 1:
                     if j == g.shape[1] - 2:
-                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i + 1, j + 1, 0],
+                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 2]) + max(g[i + 1, j + 1, 0],
                                                                                    g[i + 1, j + 1, 1])
                     else:
-                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 1]) + max(g[i + 1, j + 1, 0],
+                        summa += max(g[i - 1, j + 1, 0], g[i - 1, j + 1, 2]) + max(g[i + 1, j + 1, 0],
                                                                                    g[i + 1, j + 1, 1]) + max(
                                                                                    g[i, j + 2, 0], g[i, j + 2, 1])
         # vert edges
@@ -259,23 +259,23 @@ def big_sum(i, j, n_ed, g):
                     if j == 0:
                         summa += max(g[i + 1, j + 1, 0], g[i + 1, j + 1, 1])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 1])
+                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 2])
                     else:
                         summa += max(g[i + 1, j + 1, 0], g[i + 1, j + 1, 1]) + max(g[i + 1, j - 1, 0],
-                                                                                   g[i + 1, j - 1, 1])
+                                                                                   g[i + 1, j - 1, 2])
             else:
                 if j % 2 == 0:
                     if j == 0:
                         summa += max(g[i + 1, j + 1, 0], g[i + 1, j + 1, 1]) + max(g[i + 2, j, 0], g[i + 2, j, 1])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 1]) + max(g[i + 2, j, 0], g[i + 2, j, 1])
+                        summa += max(g[i + 1, j - 1, 0], g[i + 1, j - 1, 2]) + max(g[i + 2, j, 0], g[i + 2, j, 1])
                     else:
                         summa += max(g[i + 1, j + 1, 0], g[i + 1, j + 1, 1]) + max(g[i + 1, j - 1, 0],
-                                                                                   g[i + 1, j - 1, 1]) + max(
+                                                                                   g[i + 1, j - 1, 2]) + max(
                                                                                    g[i + 2, j, 0], g[i + 2, j, 1])
     # case: edges from t' to t: 1-0 or 1-1 (same as t->t': 0-1 or 1-1) - looking for edges from t' to t'' 1-0 or 1-1
-    if n_ed == 1 or n_ed == 3:
-        summa += max(g[i, j, 0], g[i, j, 2])
+    elif n_ed == 1 or n_ed == 3:
+        summa += max(g[i, j, 1], g[i, j, 3])
         # horiz edges
         if i % 2 == 0:
             if i == 0:
@@ -287,16 +287,16 @@ def big_sum(i, j, n_ed, g):
             elif i == g.shape[0] - 1:
                 if j % 2 == 1:
                     if j == g.shape[1] - 2:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3])
+                        summa += max(g[i - 1, j + 1, 1], g[i - 1, j + 1, 3])
                     else:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i, j + 2, 2], g[i, j + 2, 3])
+                        summa += max(g[i - 1, j + 1, 1], g[i - 1, j + 1, 3]) + max(g[i, j + 2, 2], g[i, j + 2, 3])
             else:
                 if j % 2 == 1:
                     if j == g.shape[1] - 2:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i + 1, j + 1, 2],
+                        summa += max(g[i - 1, j + 1, 1], g[i - 1, j + 1, 3]) + max(g[i + 1, j + 1, 2],
                                                                                    g[i + 1, j + 1, 3])
                     else:
-                        summa += max(g[i - 1, j + 1, 2], g[i - 1, j + 1, 3]) + max(g[i + 1, j + 1, 2],
+                        summa += max(g[i - 1, j + 1, 1], g[i - 1, j + 1, 3]) + max(g[i + 1, j + 1, 2],
                                                                                    g[i + 1, j + 1, 3]) + max(
                                                                                    g[i, j + 2, 2], g[i, j + 2, 3])
         # vert edges
@@ -306,18 +306,18 @@ def big_sum(i, j, n_ed, g):
                     if j == 0:
                         summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i + 1, j - 1, 2], g[i + 1, j - 1, 3])
+                        summa += max(g[i + 1, j - 1, 1], g[i + 1, j - 1, 3])
                     else:
-                        summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3]) + max(g[i + 1, j - 1, 2],
+                        summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3]) + max(g[i + 1, j - 1, 1],
                                                                                    g[i + 1, j - 1, 3])
             else:
                 if j % 2 == 0:
                     if j == 0:
                         summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3]) + max(g[i + 2, j, 2], g[i + 2, j, 3])
                     elif j == g.shape[1] - 1:
-                        summa += max(g[i + 1, j - 1, 2], g[i + 1, j - 1, 3]) + max(g[i + 2, j, 2], g[i + 2, j, 3])
+                        summa += max(g[i + 1, j - 1, 1], g[i + 1, j - 1, 3]) + max(g[i + 2, j, 2], g[i + 2, j, 3])
                     else:
-                        summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3]) + max(g[i + 1, j - 1, 2],
+                        summa += max(g[i + 1, j + 1, 2], g[i + 1, j + 1, 3]) + max(g[i + 1, j - 1, 1],
                                                                                    g[i + 1, j - 1, 3]) + max(
                                                                                    g[i + 2, j, 2], g[i + 2, j, 3])
     # end t' -> t
@@ -348,7 +348,7 @@ def diffusion_iter(graph_edges):
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-filename = "field6.jpg"
+filename = "field3.jpg"
 img1 = imread(filename)
 scale = [140, 90]
 n_iterations = 1000
@@ -369,16 +369,16 @@ zero_iter_time = time.time() - start_time
 print("Time of zero iteration (get probs and make start graph):  %s seconds; " % zero_iter_time)
 
 start_time = time.time()
-
-print(graph[:5, 0])
+print("sum: ", graph.sum())
+print(graph[-5, -2])
 iteration = 0
 while iteration < n_iterations:
     iteration += 1
     # print(iteration)
     graph = diffusion_iter(graph)
     # print(graph[:5, 0])
-print(graph[:5, 0])
-
+print(graph[-5, -2])
+print("sum: ", graph.sum())
 alg_time = time.time() - start_time
 print("Diffusion time: %s seconds;" % alg_time)
 print("time per diffusion iteration: ", alg_time / n_iterations)

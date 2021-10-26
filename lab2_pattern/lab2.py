@@ -40,20 +40,20 @@ def take_params(image, percent_h=.2, percent_w=.5, take_mode="corner_square"):
 
 
 # return logarithm of multi-gauss distribution (simplified on sheet of paper)
-@njit(fastmath=True, cache=False)
+@njit(fastmath=True)
 def pdf_multivariate_gauss_log(x, mu, cov):
     # part1 = 1 / (((2 * np.pi) ** (mu.shape[0] / 2)) * (np.linalg.det(cov) ** (1 / 2)))
     # part2 = (-1 / 2) * (((x - mu).T).dot(np.linalg.inv(cov))).dot((x - mu))
     # return np.double(part1 * np.exp(part2))
     # _____________________________________________________________________
     # take log() from gauss distr: log(exp(blablabla)/Z) = blablabla - log(Z)
-    part1 = np.sqrt(np.linalg.det(cov))
+    part1 = np.log(np.linalg.det(cov))
     part2 = (-1 / 2) * ((x - mu).T.dot(np.linalg.inv(cov))).dot((x - mu))
-    return part2 - part1
+    return part2 - 2 * part1
 
 
 # @njit(cache=False, nogil=False, fastmath=True, parallel=True)
-@njit(cache=False, fastmath=True)
+@njit(fastmath=True)
 def get_probs(image, mean_0, mean_1, cov_0, cov_1):
     image_resh = image.reshape(image.shape[0] * image.shape[1], image.shape[2])
     PROB = np.zeros((image_resh.shape[0], 2), np.double)
@@ -86,24 +86,24 @@ def fill_graph_edges(probs, epsilon=0.25):
         if i % 2 == 0:
             for j in range(1, g_for_im.shape[1] - 1, 2):
                 g_for_im[i, j, 0] = (probs[i // 2, (j - 1) // 2, 0] + probs[i // 2, (j + 1) // 2, 0]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(epsilon)
                 g_for_im[i, j, 1] = (probs[i // 2, (j - 1) // 2, 0] + probs[i // 2, (j + 1) // 2, 1]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(1 - epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(1 - epsilon)
                 g_for_im[i, j, 2] = (probs[i // 2, (j - 1) // 2, 1] + probs[i // 2, (j + 1) // 2, 0]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(1 - epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(1 - epsilon)
                 g_for_im[i, j, 3] = (probs[i // 2, (j - 1) // 2, 1] + probs[i // 2, (j + 1) // 2, 1]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(epsilon)
         # нечетные i; смотрим объекты сверху и снизу
         else:
             for j in range(0, g_for_im.shape[1], 2):
                 g_for_im[i, j, 0] = (probs[(i - 1) // 2, j // 2, 0] + probs[(i + 1) // 2, j // 2, 0]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(epsilon)
                 g_for_im[i, j, 1] = (probs[(i - 1) // 2, j // 2, 0] + probs[(i + 1) // 2, j // 2, 1]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(1 - epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(1 - epsilon)
                 g_for_im[i, j, 2] = (probs[(i - 1) // 2, j // 2, 1] + probs[(i + 1) // 2, j // 2, 0]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(1 - epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(1 - epsilon)
                 g_for_im[i, j, 3] = (probs[(i - 1) // 2, j // 2, 1] + probs[(i + 1) // 2, j // 2, 1]) / n_of_Nt(
-                    i, j, g_for_im.shape) + np.log(epsilon)
+                    i, j, g_for_im.shape) + 2 * np.log(epsilon)
     return g_for_im
 
 
@@ -370,13 +370,15 @@ print("Time of zero iteration (get probs and make start graph):  %s seconds; " %
 
 start_time = time.time()
 print("sum: ", graph.sum())
+print(graph[5, 2])
 print(graph[-5, -2])
 iteration = 0
 while iteration < n_iterations:
     iteration += 1
-    # print(iteration)
+    print(iteration)
     graph = diffusion_iter(graph)
     # print(graph[:5, 0])
+print(graph[5, 2])
 print(graph[-5, -2])
 print("sum: ", graph.sum())
 alg_time = time.time() - start_time

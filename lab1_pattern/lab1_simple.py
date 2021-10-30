@@ -81,10 +81,10 @@ def sampler_1st_iter(image, mean0, mean1, cov0, cov1):
     LABELS = np.zeros(image_resh.shape[0], np.uint8)
     PROB = np.zeros((image_resh.shape[0], 2), np.double)
     for i in prange(image_resh.shape[0] - 1):
-        PROB[i][0] = pdf_multivariate_gauss(image_resh[i], mean0, cov0)
-        PROB[i][1] = pdf_multivariate_gauss(image_resh[i], mean1, cov1)
-        c = np.random.uniform(0, PROB[i][0] + PROB[i][1])
-        if c < PROB[i][0]:
+        PROB[i, 0] = pdf_multivariate_gauss(image_resh[i], mean0, cov0)
+        PROB[i, 1] = pdf_multivariate_gauss(image_resh[i], mean1, cov1)
+        c = np.random.uniform(0, PROB[i, 0] + PROB[i, 1])
+        if c < PROB[i, 0]:
             LABELS[i] = 1
     return LABELS.reshape(image.shape[:2]), PROB.reshape((image.shape[0], image.shape[1], 2))
 
@@ -94,12 +94,12 @@ def sampler_one_iter(PROB, LABELS, eps):
     new_LABELS = np.zeros_like(LABELS)
     for i in prange(PROB.shape[0]):
         for j in prange(PROB.shape[1]):
-            a = PROB[i][j][0] * g_multiply(LABELS, eps, i, j, 0)
-            b = PROB[i][j][1] * g_multiply(LABELS, eps, i, j, 1)
+            a = PROB[i, j, 0] * g_multiply(LABELS, eps, i, j, 0)
+            b = PROB[i, j, 1] * g_multiply(LABELS, eps, i, j, 1)
             c = np.random.uniform(0, a + b)
             if c < a:
-                # LABELS[i][j] = 1
-                new_LABELS[i][j] = 1
+                # LABELS[i, j] = 1
+                new_LABELS[i, j] = 1
     return new_LABELS
     # return LABELS
 
@@ -125,11 +125,11 @@ def sampler(image, eps=0.2, n_iter=100, h=.2, w=.4, offset=0.):
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-filename = "field8.jpg"
+filename = "field5.jpg"
 img1 = imread(filename)
-scale = [512, 512]
-n_iter = 10000
-eps = 0.15
+scale = [256, 256]
+n_iter = 7000
+eps = 0.07
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,7 +140,7 @@ start_time = time.time()
 if scale is not None:
     img1 = resize(img1, (scale[0], scale[1]))
 
-img_for_sampl, LABELS = sampler(img1, eps=eps, n_iter=n_iter, h=.25, w=.4, offset=0.05)
+img_for_sampl, LABELS = sampler(img1, eps=eps, n_iter=n_iter, h=.55, w=.44, offset=0.05)
 alg_time = time.time() - start_time
 print("--- %s seconds ---" % alg_time)
 print("time per iter: ", alg_time / n_iter)

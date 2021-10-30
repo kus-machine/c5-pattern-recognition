@@ -19,13 +19,13 @@ def show_image(image, size=(9, 7)):
 
 
 # take parameters of multi-gauss distribution of 2 classes (sky and ground) for good axis
-def take_params(image, percent_h=.2, percent_w=.5, take_mode="corner_square"):
-    if take_mode == "corner_square":
-        piece0 = image[:int(percent_h * image.shape[0]), :int(percent_w * image.shape[1])]
-        piece1 = image[int(-percent_h * image.shape[0]):, int(-percent_w * image.shape[1]):]
-    elif take_mode == "full_line":
-        piece0 = image[:int(percent_h * image.shape[0]), :]
-        piece1 = image[int(-percent_h * image.shape[0]):, :]
+def take_params(image, h=.2, w=.4, offset=0.05):
+    if w > 0.5:
+        w = 0.5
+    piece0 = image[int(offset * image.shape[0]):int((h + offset) * image.shape[0]), int(image.shape[1] * (1/2 - w)):int(
+        image.shape[1] * (1/2 + w))]
+    piece1 = image[int((1 - h - offset) * image.shape[0]):int((1 - offset) * image.shape[0]), int(image.shape[1] * (
+            1/2 - w)):int(image.shape[1] * (1/2 + w))]
 
     piece0 = np.reshape(piece0, (piece0.shape[0] * piece0.shape[1], piece0.shape[2]))
     piece1 = np.reshape(piece1, (piece1.shape[0] * piece1.shape[1], piece1.shape[2]))
@@ -332,16 +332,16 @@ def diffusion_iter(graph_edges):
     new_graph_edges = np.zeros_like(graph_edges)
     for i in range(graph_edges.shape[0]):
         for j in range(graph_edges.shape[1]):
-            if (i + j) % 2 == 0:
-                continue
-            new_graph_edges[i, j, 0] = graph_edges[i, j, 0] - max(graph_edges[i, j, 0], graph_edges[i, j, 1]) - max(
-                graph_edges[i, j, 0], graph_edges[i, j, 2]) + big_sum(i, j, 0, graph_edges)
-            new_graph_edges[i, j, 1] = graph_edges[i, j, 1] - max(graph_edges[i, j, 1], graph_edges[i, j, 0]) - max(
-                graph_edges[i, j, 1], graph_edges[i, j, 3]) + big_sum(i, j, 1, graph_edges)
-            new_graph_edges[i, j, 2] = graph_edges[i, j, 2] - max(graph_edges[i, j, 2], graph_edges[i, j, 3]) - max(
-                graph_edges[i, j, 2], graph_edges[i, j, 0]) + big_sum(i, j, 2, graph_edges)
-            new_graph_edges[i, j, 3] = graph_edges[i, j, 3] - max(graph_edges[i, j, 3], graph_edges[i, j, 2]) - max(
-                graph_edges[i, j, 3], graph_edges[i, j, 1]) + big_sum(i, j, 3, graph_edges)
+            if (i + j) % 2 != 0:
+                # continue
+                new_graph_edges[i, j, 0] = graph_edges[i, j, 0] - max(graph_edges[i, j, 0], graph_edges[i, j, 1]) - max(
+                    graph_edges[i, j, 0], graph_edges[i, j, 2]) + big_sum(i, j, 0, graph_edges)
+                new_graph_edges[i, j, 1] = graph_edges[i, j, 1] - max(graph_edges[i, j, 1], graph_edges[i, j, 0]) - max(
+                    graph_edges[i, j, 1], graph_edges[i, j, 3]) + big_sum(i, j, 1, graph_edges)
+                new_graph_edges[i, j, 2] = graph_edges[i, j, 2] - max(graph_edges[i, j, 2], graph_edges[i, j, 3]) - max(
+                    graph_edges[i, j, 2], graph_edges[i, j, 0]) + big_sum(i, j, 2, graph_edges)
+                new_graph_edges[i, j, 3] = graph_edges[i, j, 3] - max(graph_edges[i, j, 3], graph_edges[i, j, 2]) - max(
+                    graph_edges[i, j, 3], graph_edges[i, j, 1]) + big_sum(i, j, 3, graph_edges)
     return new_graph_edges
 
 
@@ -371,15 +371,15 @@ print("Time of zero iteration (get probs and make start graph):  %s seconds; " %
 start_time = time.time()
 print("sum: ", graph.sum())
 print(graph[5, 2])
-print(graph[-5, -2])
+print(graph[-2, -5])
 iteration = 0
 while iteration < n_iterations:
     iteration += 1
-    print(iteration)
+    # print(iteration)
     graph = diffusion_iter(graph)
     # print(graph[:5, 0])
 print(graph[5, 2])
-print(graph[-5, -2])
+print(graph[-2, -5])
 print("sum: ", graph.sum())
 alg_time = time.time() - start_time
 print("Diffusion time: %s seconds;" % alg_time)

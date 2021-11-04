@@ -321,7 +321,7 @@ def big_sum(i, j, n_ed, g, time):
                                 g[i + 2, j, 2], g[i + 2, j, 3])
         # end t' -> t
 
-    return summa / n_nei
+    return summa # / n_nei
 
 
 # !!! ONE iteration of diffusion: next "edge-update" is not depends from neighbour edge that was updated on current
@@ -334,14 +334,14 @@ def diffusion_iter(graph_edges_for_diffusion_iter):
         for j in range(graph_ed.shape[1]):
             if (i + j) % 2 != 0:
                 # continue
-                graph_ed[i, j, 0] += - max(graph_ed[i, j, 0], graph_ed[i, j, 1]) + big_sum(i, j, 0, graph_ed, 1)
-                graph_ed[i, j, 1] += - max(graph_ed[i, j, 1], graph_ed[i, j, 0]) + big_sum(i, j, 1, graph_ed, 1)
-                graph_ed[i, j, 2] += - max(graph_ed[i, j, 2], graph_ed[i, j, 3]) + big_sum(i, j, 2, graph_ed, 1)
-                graph_ed[i, j, 3] += - max(graph_ed[i, j, 3], graph_ed[i, j, 2]) + big_sum(i, j, 3, graph_ed, 1)
-                graph_ed[i, j, 0] += - max(graph_ed[i, j, 0], graph_ed[i, j, 2]) + big_sum(i, j, 0, graph_ed, 2)
-                graph_ed[i, j, 1] += - max(graph_ed[i, j, 1], graph_ed[i, j, 3]) + big_sum(i, j, 1, graph_ed, 2)
-                graph_ed[i, j, 2] += - max(graph_ed[i, j, 2], graph_ed[i, j, 0]) + big_sum(i, j, 2, graph_ed, 2)
-                graph_ed[i, j, 3] += - max(graph_ed[i, j, 3], graph_ed[i, j, 1]) + big_sum(i, j, 3, graph_ed, 2)
+                graph_ed[i, j, 0] += - max(graph_ed[i, j, 0], graph_ed[i, j, 1]) + big_sum(i, j, 0, graph_ed, 1) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 1] += - max(graph_ed[i, j, 1], graph_ed[i, j, 0]) + big_sum(i, j, 1, graph_ed, 1) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 2] += - max(graph_ed[i, j, 2], graph_ed[i, j, 3]) + big_sum(i, j, 2, graph_ed, 1) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 3] += - max(graph_ed[i, j, 3], graph_ed[i, j, 2]) + big_sum(i, j, 3, graph_ed, 1) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 0] += - max(graph_ed[i, j, 0], graph_ed[i, j, 2]) + big_sum(i, j, 0, graph_ed, 2) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 1] += - max(graph_ed[i, j, 1], graph_ed[i, j, 3]) + big_sum(i, j, 1, graph_ed, 2) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 2] += - max(graph_ed[i, j, 2], graph_ed[i, j, 0]) + big_sum(i, j, 2, graph_ed, 2) / n_of_Nt(i, j, graph_ed.shape)
+                graph_ed[i, j, 3] += - max(graph_ed[i, j, 3], graph_ed[i, j, 1]) + big_sum(i, j, 3, graph_ed, 2) / n_of_Nt(i, j, graph_ed.shape)
     return graph_ed
 
 

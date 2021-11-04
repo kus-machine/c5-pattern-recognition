@@ -15,7 +15,7 @@ def show_image(image, size=(9, 7)):
 
 
 # take parameters of multi-gauss distribution of 2 classes (sky and ground) for good axis
-def take_params(image, h=.3, w=.4, offset=0.05):
+def take_params(image, h=.2, w=.4, offset=0.05):
     if w > 0.5:
         w = 0.5
     piece0 = image[int(offset * image.shape[0]):int((h + offset) * image.shape[0]),

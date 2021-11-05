@@ -9,9 +9,9 @@ from os import mkdir, path
 
 
 # func that show the image (put in BGR (cv2))
-def show_image(image,size=(9,7)):
+def show_image(image, size=(9, 7)):
     plt.figure(figsize=size)
-    #Before showing image, bgr color order transformed to rgb order
+    # Before showing image, bgr color order transformed to rgb order
     plt.imshow(cvtColor(image, COLOR_BGR2RGB))
     plt.xticks([])
     plt.yticks([])
@@ -22,8 +22,10 @@ def show_image(image,size=(9,7)):
 def take_params(image, h, w, offset):
     if w > 0.5:
         w = 0.5
-    piece0 = image[int(offset * image.shape[0]):int((h + offset) * image.shape[0]), int(image.shape[1] * (1/2 - w)):int(image.shape[1] * (1/2 + w))]
-    piece1 = image[int((1 - h - offset) * image.shape[0]):int((1 - offset) * image.shape[0]), int(image.shape[1] * (1/2 - w)):int(image.shape[1] * (1/2 + w))]
+    piece0 = image[int(offset * image.shape[0]):int((h + offset) * image.shape[0]),
+             int(image.shape[1] * (1 / 2 - w)):int(image.shape[1] * (1 / 2 + w))]
+    piece1 = image[int((1 - h - offset) * image.shape[0]):int((1 - offset) * image.shape[0]),
+             int(image.shape[1] * (1 / 2 - w)):int(image.shape[1] * (1 / 2 + w))]
     piece0 = np.reshape(piece0, (piece0.shape[0] * piece0.shape[1], piece0.shape[2]))
     piece1 = np.reshape(piece1, (piece1.shape[0] * piece1.shape[1], piece1.shape[2]))
 
@@ -122,46 +124,25 @@ def sampler(image, eps=0.2, n_iter=100, h=.2, w=.4, offset=0.):
     return image, mas
 
 
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-filename = "field5.jpg"
-img1 = imread(filename)
-scale = [256, 256]
-n_iter = 7000
-eps = 0.07
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+def write_result_to_path(filename, LABELS, img_for_sampl, a=100, b=100):
+    if not path.exists(filename[:-4] + '/'):
+        mkdir(filename[:-4] + '/')
+        print("Directory " + filename[:-4] + '/' " created.")
 
-start_time = time.time()
-
-# scaling image to lower resolution for good performance
-if scale is not None:
-    img1 = resize(img1, (scale[0], scale[1]))
-
-img_for_sampl, LABELS = sampler(img1, eps=eps, n_iter=n_iter, h=.55, w=.44, offset=0.05)
-alg_time = time.time() - start_time
-print("--- %s seconds ---" % alg_time)
-print("time per iter: ", alg_time / n_iter)
-
-if not path.exists(filename[:-4] + '/'):
-    mkdir(filename[:-4] + '/')
-    print("Directory " + filename[:-4] + '/' " created.")
-
-for i in range(LABELS.shape[0] - 1):
-    if i < 100 or i % 100 == 0:
-        result = np.zeros_like(img_for_sampl)
-        result[..., 0] = LABELS[i] * 255
-        result[..., 1] = LABELS[i] * 255
-        result[result[..., 0] == 0] = [0, 0, 255]
-        result[result[..., 1] == 0] = [0, 0, 255]
-        result2 = hconcat([(0.4 * img_for_sampl + result * 0.6).astype(np.uint8), img_for_sampl])
-        result2 = putText(result2,
-                          str(i),
-                          (int(img_for_sampl.shape[0] * 0.05), int(img_for_sampl.shape[1] * 0.1)),
-                          FONT_HERSHEY_SIMPLEX,
-                          1.5,
-                          (0, 255, 255),
-                          4)
-        imwrite(filename[:-4] + '/' + str(i) + '.png', result2)
+    for i in range(LABELS.shape[0] - 1):
+        if i < a or i % b == 0:
+            result = np.zeros_like(img_for_sampl)
+            result[..., 0] = LABELS[i] * 255
+            result[..., 1] = LABELS[i] * 255
+            result[result[..., 0] == 0] = [0, 0, 255]
+            result[result[..., 1] == 0] = [0, 0, 255]
+            result2 = hconcat([(0.4 * img_for_sampl + result * 0.6).astype(np.uint8), img_for_sampl])
+            result2 = putText(result2,
+                              str(i),
+                              (int(img_for_sampl.shape[0] * 0.05), int(img_for_sampl.shape[1] * 0.1)),
+                              FONT_HERSHEY_SIMPLEX,
+                              1.5,
+                              (0, 255, 255),
+                              4)
+            imwrite(filename[:-4] + '/' + str(i) + '.png', result2)
+    return result2

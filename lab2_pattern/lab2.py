@@ -37,23 +37,24 @@ def take_params(image, h=.2, w=.4, offset=0.05):
 
 
 # return logarithm of multi-gauss distribution (simplified on sheet of paper)
-@njit(fastmath=True)
+# @njit#(fastmath=True)
 def pdf_multivariate_gauss_log(x, mu, cov):
     # part1 = 1 / (((2 * np.pi) ** (mu.shape[0] / 2)) * (np.linalg.det(cov) ** (1 / 2)))
     # part2 = (-1 / 2) * (((x - mu).T).dot(np.linalg.inv(cov))).dot((x - mu))
     # return np.double(part1 * np.exp(part2))
     # _____________________________________________________________________
     # take log() from gauss distr: log(exp(blablabla)/Z) = blablabla - log(Z)
+    cov = cov.astype(float)
     part1 = np.log(np.linalg.det(cov))
     part2 = (-1 / 2) * ((x - mu).T.dot(np.linalg.inv(cov))).dot((x - mu))
     return part2 - 2 * part1
 
 
 # @njit(cache=False, nogil=False, fastmath=True, parallel=True)
-@njit(fastmath=True, parallel=True)
+# @njit(fastmath=True, parallel=True)
 def get_probs(image, mean_0, mean_1, cov_0, cov_1):
     image_resh = image.reshape(image.shape[0] * image.shape[1], image.shape[2])
-    PROB = np.zeros((image_resh.shape[0], 2), np.longdouble)
+    PROB = np.zeros((image_resh.shape[0], 2), float)
     for i in prange(image_resh.shape[0]):
         # for j in prange(image.shape[1]-1):
         PROB[i, 0] = pdf_multivariate_gauss_log(image_resh[i], mean_0, cov_0)
@@ -64,7 +65,7 @@ def get_probs(image, mean_0, mean_1, cov_0, cov_1):
 # this func only for 1st iteration (fill start graph)
 @njit(fastmath=True)
 def n_of_Nt(i, j, shape):
-    n = 4.
+    n = 4
     if i == 0:
         n -= 1
     if i == (shape[0] - 1):
@@ -76,9 +77,9 @@ def n_of_Nt(i, j, shape):
     return n
 
 
-@njit(fastmath=True)
+# @njit(fastmath=True)
 def fill_graph_edges(probs, epsilon=0.25):
-    g_for_im = np.zeros((2 * probs.shape[0] - 1, 2 * probs.shape[1] - 1, 4), np.longdouble)
+    g_for_im = np.zeros((2 * probs.shape[0] - 1, 2 * probs.shape[1] - 1, 4), float)
     # 4 edges - 0-0, 0-1, 1-0, 1-1 in this order
     for i in range(g_for_im.shape[0]):
         # четные i; смотрим объекты слева и справа
@@ -329,7 +330,7 @@ def big_sum(i, j, n_ed, g, time):
 @njit(fastmath=True, parallel=True)
 def diffusion_iter(graph_edges_for_diffusion_iter):
     graph_ed = graph_edges_for_diffusion_iter.copy()
-    # new_graph_edges = np.zeros_like(graph_edges, np.double)
+    # new_graph_edges = np.zeros_like(graph_edges, float)
     for i in prange(graph_ed.shape[0]):
         for j in range(graph_ed.shape[1]):
             if (i + j) % 2 != 0:
